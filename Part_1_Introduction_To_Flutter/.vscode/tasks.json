@@ -1,0 +1,21 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "flutter: Build Runner - Build",
+      "type": "flutter",
+      "command": "flutter",
+      "args": ["pub", "run", "build_runner", "build", "--delete-conflicting-outputs"],
+      "problemMatcher": ["$dart-build_runner"],
+      "group": "build"
+    },
+    {
+      "label": "flutter: Build Runner - Watch",
+      "type": "flutter",
+      "command": "flutter",
+      "args": ["pub", "run", "build_runner", "watch", "--delete-conflicting-outputs"],
+      "problemMatcher": ["$dart-build_runner"],
+      "group": "build"
+    }
+  ]
+}
