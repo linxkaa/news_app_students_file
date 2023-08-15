@@ -1,0 +1,3 @@
+// Jangan convert file ini menjadi `.dart`
+// Layer `Application` ini digunakan untuk menyimpan folder bloc / cubit yang kalian gunakan
+// Untuk berkomunikasi dengan layer `Presentation`
