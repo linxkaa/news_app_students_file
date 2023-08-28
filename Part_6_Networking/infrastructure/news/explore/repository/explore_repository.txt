@@ -1,0 +1,26 @@
+import 'package:fpdart/fpdart.dart';
+import 'package:injectable/injectable.dart';
+import 'package:news_app/domain/core/app_failure.dart';
+import 'package:news_app/domain/news/common/dtos/article_model.dart';
+import 'package:news_app/domain/news/explore/i_explore_repository.dart';
+import 'package:news_app/infrastructure/news/explore/data_source/explore_data_source.dart';
+
+@LazySingleton(as: IExploreRepository)
+class ExploreRepository implements IExploreRepository {
+  final ExploreDataSource _dataSource;
+
+  ExploreRepository(this._dataSource);
+
+  @override
+  Future<Either<AppFailure, List<ArticleModel>>> exploreArticles({
+    required String query,
+    required String sort,
+  }) async {
+    try {
+      final response = await _dataSource.exploreArticles(query: query, sort: sort);
+      return right(response);
+    } catch (e) {
+      return left(AppFailure.fromServerSide(e.toString()));
+    }
+  }
+}

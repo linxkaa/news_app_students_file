@@ -1,0 +1,10 @@
+import 'package:fpdart/fpdart.dart';
+import 'package:news_app/domain/core/app_failure.dart';
+import 'package:news_app/domain/news/common/dtos/article_model.dart';
+
+abstract class IExploreRepository {
+  Future<Either<AppFailure, List<ArticleModel>>> exploreArticles({
+    required String query,
+    required String sort,
+  });
+}

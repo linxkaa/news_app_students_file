@@ -1,0 +1,21 @@
+import 'package:injectable/injectable.dart';
+import 'package:news_app/core/commons/api_path_constant.dart';
+import 'package:news_app/domain/news/common/dtos/article_model.dart';
+import 'package:news_app/infrastructure/core/api_helper.dart';
+
+@injectable
+class ExploreDataSource {
+  final ApiHelper _helper;
+
+  ExploreDataSource(this._helper);
+
+  Future<List<ArticleModel>> exploreArticles({required String query, required String sort}) async {
+    final response = await _helper.get(path: ApiPathConstant.exploreArticles, queryParameters: {
+      'q': query,
+      'sort': sort,
+    });
+    final rawList = response.data['docs'] as List;
+    final list = List.generate(rawList.length.clamp(0, 20), (i) => ArticleModel.fromExplore(rawList[i]));
+    return list;
+  }
+}
