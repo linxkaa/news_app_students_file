@@ -1,0 +1,67 @@
+import 'package:auto_route/auto_route.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:hydrated_bloc/hydrated_bloc.dart';
+import 'package:news_app/application/main_app_cubit/main_app_cubit.dart';
+import 'package:news_app/application/news/bottom_nav_bar_cubit/bottom_nav_bar_cubit.dart';
+import 'package:news_app/application/news/favorite_cubit/favorite_cubit.dart';
+import 'package:news_app/core/commons/theme.dart';
+import 'package:news_app/core/injection/injection.dart';
+import 'package:news_app/core/routes/app_router.dart';
+import 'package:path_provider/path_provider.dart';
+
+import 'core/utils/simple_bloc_observer.dart';
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  HydratedBloc.storage = await HydratedStorage.build(
+    storageDirectory: kIsWeb ? HydratedStorage.webStorageDirectory : await getTemporaryDirectory(),
+  );
+  Bloc.observer = SimpleBlocObserver();
+  configureInjection();
+  runApp(const NewsApp());
+}
+
+class NewsApp extends StatelessWidget {
+  const NewsApp({super.key});
+
+  // This widget is the root of your application.
+  @override
+  Widget build(BuildContext context) {
+    final router = getIt<AppRouter>();
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(
+          create: (context) => MainAppCubit(),
+        ),
+        BlocProvider(
+          create: (context) => BottomNavBarCubit(),
+        ),
+        BlocProvider(
+          create: (context) => FavoriteCubit(),
+        ),
+      ],
+      child: GestureDetector(
+        onTap: () {
+          FocusScopeNode currentFocus = FocusScope.of(context);
+          if (!currentFocus.hasPrimaryFocus && currentFocus.focusedChild != null) {
+            currentFocus.focusedChild!.unfocus();
+          }
+        },
+        child: ScreenUtilInit(
+          designSize: const Size(360, 640),
+          builder: () {
+            return MaterialApp.router(
+              theme: AppTheme.theme,
+              darkTheme: AppTheme.theme,
+              routerDelegate: AutoRouterDelegate(router),
+              routeInformationParser: router.defaultRouteParser(),
+            );
+          },
+        ),
+      ),
+    );
+  }
+}

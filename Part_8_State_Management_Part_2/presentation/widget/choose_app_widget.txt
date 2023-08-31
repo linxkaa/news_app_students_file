@@ -1,0 +1,90 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:news_app/application/main_app_cubit/main_app_cubit.dart';
+import 'package:news_app/core/commons/assets_path.dart';
+import 'package:news_app/core/commons/colors_const.dart';
+import 'package:news_app/presentation/widget/ui_helper.dart';
+import 'package:news_app/presentation/widget/text_theme_extension.dart';
+
+class ChooseAppWidget extends StatelessWidget {
+  final bool showResetButton;
+  const ChooseAppWidget({
+    super.key,
+    this.showResetButton = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text("Choose your app", style: context.textTheme.displayMedium),
+        UIHelper.verticalSpace(10),
+        InkWell(
+          onTap: () {
+            context.read<MainAppCubit>().changeApp(const MainAppType.pixelNews());
+          },
+          child: Container(
+            width: double.infinity,
+            alignment: Alignment.centerLeft,
+            padding: UIHelper.padding(all: 20),
+            decoration: BoxDecoration(
+              border: Border.all(
+                color: ColorConstant.lightGrey,
+                width: 0.5,
+              ),
+              borderRadius: UIHelper.borderRadiusCircular(all: 5),
+            ),
+            child: SvgPicture.asset(AssetsPath.pixelNewsLogo),
+          ),
+        ),
+        UIHelper.verticalSpace(10),
+        InkWell(
+          onTap: () {
+            context.read<MainAppCubit>().changeApp(const MainAppType.playground());
+          },
+          child: Container(
+            width: double.infinity,
+            alignment: Alignment.centerLeft,
+            padding: UIHelper.padding(all: 20),
+            decoration: BoxDecoration(
+              border: Border.all(
+                color: ColorConstant.lightGrey,
+                width: 0.5,
+              ),
+              borderRadius: UIHelper.borderRadiusCircular(all: 5),
+            ),
+            child: Image.asset(AssetsPath.playgroundLogo),
+          ),
+        ),
+        UIHelper.verticalSpace(10),
+        if (showResetButton)
+          InkWell(
+            onTap: () {
+              context.read<MainAppCubit>().changeApp(const MainAppType.none());
+            },
+            child: Container(
+              width: double.infinity,
+              alignment: Alignment.centerLeft,
+              padding: UIHelper.padding(all: 20),
+              decoration: BoxDecoration(
+                border: Border.all(
+                  color: ColorConstant.lightGrey,
+                  width: 0.5,
+                ),
+                borderRadius: UIHelper.borderRadiusCircular(all: 5),
+              ),
+              child: Row(
+                children: [
+                  SvgPicture.asset(AssetsPath.restartIcon),
+                  UIHelper.horizontalSpace(5),
+                  Text('Reset App', style: context.textTheme.displayMedium),
+                ],
+              ),
+            ),
+          )
+      ],
+    );
+  }
+}

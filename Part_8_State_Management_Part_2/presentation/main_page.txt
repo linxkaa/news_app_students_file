@@ -1,0 +1,53 @@
+import 'dart:async';
+
+import 'package:auto_route/auto_route.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:news_app/application/main_app_cubit/main_app_cubit.dart';
+import 'package:news_app/core/routes/app_router.gr.dart';
+import 'package:news_app/presentation/widget/choose_app_widget.dart';
+import 'package:news_app/presentation/widget/ui_helper.dart';
+
+@RoutePage()
+class MainPage extends StatelessWidget {
+  const MainPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    // for initial state
+    Timer(
+      Duration.zero,
+      () {
+        context.read<MainAppCubit>().state.type.when(
+              none: () {},
+              pixelNews: () {
+                AutoRouter.of(context).replaceAll([const SplashRoute()]);
+              },
+              playground: () {
+                AutoRouter.of(context).replaceAll([const PGSplashRoute()]);
+              },
+            );
+      },
+    );
+    return BlocListener<MainAppCubit, MainAppState>(
+      listener: (context, state) {
+        // after changing state from reset app
+        state.type.when(
+          none: () {},
+          pixelNews: () {
+            AutoRouter.of(context).replaceAll([const SplashRoute()]);
+          },
+          playground: () {
+            AutoRouter.of(context).replaceAll([const PGSplashRoute()]);
+          },
+        );
+      },
+      child: Scaffold(
+        body: SingleChildScrollView(
+          padding: UIHelper.padding(vertical: 30, horizontal: 20),
+          child: const ChooseAppWidget(),
+        ),
+      ),
+    );
+  }
+}
