@@ -1,0 +1,106 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:news_app/domain/playground/calculator/calculator_entity.dart';
+import 'package:news_app/domain/playground/calculator/history_entity.dart';
+
+part 'calculator_cubit.freezed.dart';
+part 'calculator_state.dart';
+
+class CalculatorCubit extends Cubit<CalculatorState> {
+  late TextEditingController leftController;
+  late TextEditingController rightController;
+
+  void onLeftControllerChange() {
+    inputLeftForm(leftController.text);
+  }
+
+  void onRightControllerChange() {
+    inputRightForm(rightController.text);
+  }
+
+  CalculatorCubit() : super(CalculatorState.empty()) {
+    leftController = TextEditingController()..addListener(onLeftControllerChange);
+    rightController = TextEditingController()..addListener(onRightControllerChange);
+  }
+
+  void chooseType(CalculatorType type) {
+    emit(state.unmodified.copyWith.model(type: type));
+  }
+
+  void inputLeftForm(String val) {
+    emit(state.unmodified.copyWith.model(leftForm: val));
+  }
+
+  void inputRightForm(String val) {
+    emit(state.unmodified.copyWith.model(rightForm: val));
+  }
+
+  void addValue() {
+    if (state.model.failureOption.isNone()) {
+      final value = double.parse(leftController.text) + double.parse(rightController.text);
+      saveToHistories(value);
+    } else {
+      emit(state.unmodified.copyWith(showError: true));
+    }
+  }
+
+  void substractValue() {
+    if (state.model.failureOption.isNone()) {
+      final value = double.parse(leftController.text) - double.parse(rightController.text);
+      saveToHistories(value);
+    } else {
+      emit(state.unmodified.copyWith(showError: true));
+    }
+  }
+
+  void multiplyValue() {
+    if (state.model.failureOption.isNone()) {
+      final value = double.parse(leftController.text) * double.parse(rightController.text);
+      saveToHistories(value);
+    } else {
+      emit(state.unmodified.copyWith(showError: true));
+    }
+  }
+
+  void divideValue() {
+    if (state.model.failureOption.isNone()) {
+      final value = double.parse(leftController.text) / double.parse(rightController.text);
+      saveToHistories(value);
+    } else {
+      emit(state.unmodified.copyWith(showError: true));
+    }
+  }
+
+  void restoreHistory(int id) {
+    final entity = state.model.restoreHistory(id);
+
+    leftController.removeListener(onLeftControllerChange);
+    leftController.removeListener(onRightControllerChange);
+
+    leftController.value = TextEditingValue(text: entity.leftValue);
+    rightController.value = TextEditingValue(text: entity.rightValue);
+
+    leftController.addListener(onLeftControllerChange);
+    leftController.addListener(onRightControllerChange);
+
+    emit(
+      state.unmodified.copyWith.model(
+        leftForm: entity.leftValue.toString(),
+        rightForm: entity.rightValue.toString(),
+        type: entity.type,
+        histories: state.model.removeHistory(id),
+      ),
+    );
+  }
+
+  void saveToHistories(double value) {
+    emit(
+      state.unmodified.copyWith.model(
+        histories: state.model.newHistories,
+        value: value,
+        isPressed: true,
+      ),
+    );
+  }
+}

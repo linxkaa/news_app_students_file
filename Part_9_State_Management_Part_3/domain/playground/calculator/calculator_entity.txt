@@ -1,0 +1,104 @@
+import 'package:fpdart/fpdart.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:news_app/domain/core/form_failure.dart';
+import 'package:news_app/domain/core/form_validator.dart';
+import 'package:news_app/domain/playground/calculator/history_entity.dart';
+
+part 'calculator_entity.freezed.dart';
+
+@freezed
+class CalculatorEntity with _$CalculatorEntity {
+  const CalculatorEntity._();
+  const factory CalculatorEntity({
+    required double value,
+    required String leftForm,
+    required String rightForm,
+    required CalculatorType type,
+    required List<HistoryEntity> histories,
+    required bool isPressed,
+  }) = _CalculatorEntity;
+
+  factory CalculatorEntity.empty() => const CalculatorEntity(
+        isPressed: false,
+        value: 0,
+        leftForm: "",
+        rightForm: "",
+        type: CalculatorType.none(),
+        histories: [],
+      );
+
+  Option<FormFailure> get failureOption {
+    return FormValidator.emptyValidator(leftForm).andThen(() => FormValidator.emptyValidator(rightForm)).fold(
+          (failure) => some(failure),
+          (_) => none(),
+        );
+  }
+
+  String? get emptyLeftErrorMessages {
+    return FormValidator.emptyValidator(leftForm).fold(
+      (failure) => failure.maybeMap(
+        orElse: () => null,
+        empty: (_) => "Left form must not be empty",
+      ),
+      (data) => null,
+    );
+  }
+
+  String? get emptyRightErrorMessages {
+    return FormValidator.emptyValidator(rightForm).fold(
+      (failure) => failure.maybeMap(
+        orElse: () => null,
+        empty: (_) => "Right form must not be empty",
+      ),
+      (data) => null,
+    );
+  }
+
+  HistoryEntity restoreHistory(int id) {
+    final history = histories.firstWhere((element) => element.id == id);
+
+    return history;
+  }
+
+  List<HistoryEntity> removeHistory(int id) {
+    final newHistories = [...histories];
+
+    newHistories.removeWhere((element) => element.id == id);
+
+    return newHistories;
+  }
+
+  // * For converting value in History table & re-apply to the left & right form
+  String get convertValue {
+    RegExp regex = RegExp(r'([.]*0)(?!.*\d)');
+
+    final valueSplitted = value.toString().split('.');
+
+    if (valueSplitted[1].length == 1) {
+      return value.toString().replaceAll(regex, '');
+    }
+
+    return value.toStringAsFixed(2).replaceAll(regex, '');
+  }
+
+  List<HistoryEntity> get newHistories {
+    final calculationHistory = HistoryEntity.newEntity(
+      leftValue: leftForm,
+      rightValue: rightForm,
+      type: type,
+    );
+
+    final newHistories = [...histories, calculationHistory];
+
+    return newHistories;
+  }
+}
+
+@freezed
+class CalculatorType with _$CalculatorType {
+  const factory CalculatorType.none() = _None;
+  const factory CalculatorType.add() = _Add;
+  const factory CalculatorType.substract() = _Substract;
+  const factory CalculatorType.multiply() = _Multiply;
+  const factory CalculatorType.divide() = _Divide;
+}

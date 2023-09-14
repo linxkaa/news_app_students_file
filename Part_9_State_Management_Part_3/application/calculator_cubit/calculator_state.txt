@@ -1,0 +1,55 @@
+part of 'calculator_cubit.txt';
+
+@freezed
+class CalculatorState with _$CalculatorState {
+  const factory CalculatorState({
+    required CalculatorEntity model,
+    required bool showError,
+  }) = _CalculatorState;
+
+  const CalculatorState._();
+
+  factory CalculatorState.empty() => CalculatorState(
+        model: CalculatorEntity.empty(),
+        showError: false,
+      );
+
+  CalculatorState get unmodified => copyWith(
+        model: model.copyWith(
+          isPressed: false,
+        ),
+      );
+
+  bool choosenType(CalculatorType type) {
+    return type == model.type;
+  }
+
+  bool get typeNotChoosen => model.type == const CalculatorType.none();
+
+  String get displayValue => !model.isPressed ? '...' : model.convertValue;
+
+  String? get showErrorMsg {
+    if (!showError) return null;
+
+    if (model.emptyLeftErrorMessages == null) {
+      return model.emptyRightErrorMessages;
+    }
+
+    return model.emptyLeftErrorMessages;
+  }
+
+  String equationText(CalculatorType type) {
+    return type.when(
+      none: () => '',
+      divide: () => '/',
+      add: () => '+',
+      substract: () => '-',
+      multiply: () => 'x',
+    );
+  }
+
+  String historyText(HistoryEntity entity) {
+    final equation = equationText(entity.type);
+    return '${entity.leftValue} $equation ${entity.rightValue}';
+  }
+}
