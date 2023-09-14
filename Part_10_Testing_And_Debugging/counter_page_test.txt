@@ -1,0 +1,79 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:news_app/application/playground/counter_cubit/counter_cubit.dart';
+import 'package:news_app/presentation/playground/counter/widgets/counter_view.dart';
+
+void main() {
+  counterPage();
+}
+
+void counterPage() {
+  // Widget Test
+  testWidgets(
+    'User see the + FAB and - FAB. When user press the increment FAB, text changes from 0 to 1',
+    (WidgetTester tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: BlocProvider(
+              create: (context) => CounterCubit(),
+              child: const CounterView(),
+            ),
+          ),
+        ),
+      );
+
+      final incrementFAB = find.byKey(CounterView.fabIncrement);
+      final textCounter = find.byKey(CounterView.textCounter);
+
+      expect(incrementFAB, findsOneWidget);
+      expect(textCounter, findsOneWidget);
+
+      await tester.tap(incrementFAB);
+      await tester.pumpAndSettle();
+
+      expect(find.text('1'), findsOneWidget);
+    },
+  );
+
+  // Integration Test
+  testWidgets(
+    '''Scenario: User should see the FAB + and - 
+    Given user is pressing the FAB +
+    Then user should see the `0` text change to `1`
+    Given user is pressing the FAB - 
+    Then user should see the `1` text change to `0`
+    ''',
+    (WidgetTester tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: BlocProvider(
+              create: (context) => CounterCubit(),
+              child: const CounterView(),
+            ),
+          ),
+        ),
+      );
+
+      final incrementFAB = find.byKey(CounterView.fabIncrement);
+      final decrementFAB = find.byKey(CounterView.fabDecrement);
+      final textCounter = find.byKey(CounterView.textCounter);
+
+      expect(incrementFAB, findsOneWidget);
+      expect(textCounter, findsOneWidget);
+      expect(decrementFAB, findsOneWidget);
+
+      await tester.tap(incrementFAB);
+      await tester.pumpAndSettle();
+
+      expect(find.text('1'), findsOneWidget);
+
+      await tester.tap(decrementFAB);
+      await tester.pumpAndSettle();
+
+      expect(find.text('0'), findsOneWidget);
+    },
+  );
+}
