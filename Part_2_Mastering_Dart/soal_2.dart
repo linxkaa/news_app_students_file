@@ -12,4 +12,5 @@ void main() {
 
   print(capitalize("hello")); // Hello
   print(capitalize("world")); // World
+  print(capitalize("")); // World
 }
